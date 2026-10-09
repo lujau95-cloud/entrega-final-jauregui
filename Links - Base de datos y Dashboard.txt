@@ -1,0 +1,5 @@
+Dashboard de Control: enlace público a una Shared View (Notion/Airtable) con los KPIs y la tasa de errores del sistema.: https://airtable.com/invite/l?inviteId=invhbzXUtMEXdtOHX&inviteToken=67515562ffa6968c8c83c1a2bff2590aade2ea9925395e9dc115bb3cd8587916&utm_medium=email&utm_source=product_team&utm_content=transactional-alerts
+
+Link en modo lectura a la Base de Datos (Airtable/Notion): https://airtable.com/invite/l?inviteId=invEMFaTaWWHd7BG2&inviteToken=71281f976c6966bfeb1471f28e30cd2831a13eadc856dfac6892d30f926b3c2d&utm_medium=email&utm_source=product_team&utm_content=transactional-alerts
+
+Link al Drive con el video: https://drive.google.com/drive/folders/1FAD790SsJbrk6HrcfHl9wuG41xA3rEpk

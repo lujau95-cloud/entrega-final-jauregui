@@ -1,0 +1,222 @@
+{
+  "name": "Entrega Final: MEMORIA RAG",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c010a9f8-b371-454d-9c59-9b1771247d02",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appfBFa3aS0xs1VIN",
+          "mode": "list",
+          "cachedResultName": "Entrega Final- JAUREGUI ROMANO, LUCIA",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkVSXXx9egtiMbD",
+          "mode": "list",
+          "cachedResultName": "RAG",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN/tblkVSXXx9egtiMbD"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "101e44d4-0196-4d4a-bbe9-e5c99e8a57bf",
+      "name": "Search records",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "pZLwGj1VW7MAfOWw",
+          "name": "Airtable account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "value": "RAG FINAL",
+          "mode": "list"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        688,
+        0
+      ],
+      "id": "20a5f6ee-f0a1-4f13-8d40-3362446faed1",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c5c4a0cd-14cc-4933-912f-1641f59efc78",
+              "name": "Titulo",
+              "value": "={{ $json.fields.Titulo }}",
+              "type": "string"
+            },
+            {
+              "id": "c26e6abb-864d-45da-92c0-5e17a8b225f1",
+              "name": "Tema RAG",
+              "value": "={{ $json.fields['Tema RAG'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5ac51d3d-1cfe-45ee-98a1-0e85943a58ea",
+              "name": "Contenido",
+              "value": "={{ $json.fields.Contenido }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        464,
+        0
+      ],
+      "id": "0dbe4932-5226-43c1-9eaa-146cddc34f6d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        624,
+        176
+      ],
+      "id": "9e9bbcb8-97bd-49e4-acc6-02d728ab7fdf",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "Titulo",
+                "value": "={{ $('Edit Fields').item.json.titulo }}"
+              },
+              {
+                "name": "Tag",
+                "value": "={{ $('Edit Fields').item.json.Tag }}"
+              },
+              {
+                "name": "Contenido",
+                "value": "={{ $('Edit Fields').item.json.Contenido }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        176
+      ],
+      "id": "354b38cf-5707-4ec5-bd1c-535c12c63db4",
+      "name": "Default Data Loader"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0b3cf490-d103-4bfa-a9fe-9841ac79d5d3",
+  "meta": {
+    "instanceId": "b4ed98bca6b932a6afde1ddc4a4d91d17693d9864d25cdaa52d95054ef5de456"
+  },
+  "nodeGroups": [],
+  "id": "2Y0xaq3jrvqFfj7L",
+  "tags": []
+}

@@ -1,0 +1,1271 @@
+{
+  "name": "Entrega Final: JAUREGUI ROMANO LUCIA",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.fields[\"Ideas publicitarias\"] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Eres un asistente experto en copywriting para redes sociales de un emprendimiento de Boxes de Desayunos y Meriendas.\nTu tarea es redactar un borrador de publicación comercial basado estrictamente en la 'Idea Publicitaria' entrante y utilizando la información técnica, de productos, colores y tipografías de la base de datos RAG.\n\n\n### Directrices de Ejecución:\n1. Analiza la [Ideas_Publicitarias] entrante para comprender el \"qué\" de la pieza (lanzamiento, tip, beneficio, etc.).\n2. Consulta el contexto recuperado (RAG) para extraer rigurosamente:\n   - Especificaciones técnicas, datos o descripciones de producto verídicas.\n   - La paleta de colores o identidad visual de la marca si es menester mencionarla visualmente.\n   - Las pautas de tono y estilo de la marca.\n3. Redacta un texto publicitario atractivo, optimizado para redes sociales, estructurado con un gancho potente al inicio, desarrollo claro del valor y un llamado a la acción (CTA) con hashtags relevantes al final.\n\n### Restricciones Críticas:\n- No inventes características de productos, precios ni datos que no figuren en la base de conocimientos RAG.\n- Si la información necesaria para responder a la idea semilla no se encuentra en el RAG, indícalo claramente en el borrador de manera profesional.\n- Mantén un tono de voz alineado con la identidad de la marca.\n\n### Formato de Salida Esperado:\nDevuelve UNICAMENTE CON FORMATO JSON con el siguiente formato:\n{\n\t\"id\":{{ $json.id }} ,\n\t\"borrador\": \"borrador\"\n} "
+        }
+      },
+      "id": "0752254d-a39f-4298-9c9f-2988bfdb6b33",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -2768,
+        16
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "id": "83989ae2-9130-45b8-9520-1a1c75999fd8",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -2880,
+        224
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "TuCwrZTFpgpUWut9",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Busca información textual dentro de la base de conocimiento RAG de la empresa. Usala SIEMPRE que tengas que armar una pieza de marketing, nunca la hagas de memoria.",
+        "memoryKey": {
+          "__rl": true,
+          "value": "RAG FINAL",
+          "mode": "list",
+          "cachedResultName": "RAG FINAL"
+        }
+      },
+      "id": "784a7270-2bd9-4de0-951e-5cc3c12cd04f",
+      "name": "Simple Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -2752,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-2"
+      },
+      "id": "0112a17d-031a-468d-906e-fd90236f77fc",
+      "name": "Embeddings Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -2752,
+        432
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"id\": \"identificacion\",\n\t\"borrador\": \"borrador\"\n}"
+      },
+      "id": "32c01f07-531a-4c17-bbb2-fe6291d95d20",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -2448,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appfBFa3aS0xs1VIN",
+          "mode": "list",
+          "cachedResultName": "Entrega Final- JAUREGUI ROMANO, LUCIA",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblFQZOItmxUpbRiF",
+          "mode": "list",
+          "cachedResultName": "Ideas de Publicidad",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN/tblFQZOItmxUpbRiF"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Pendiente de aprobación Humana",
+            "Borrador": "={{ $json.output.borrador }}",
+            "id": "={{ $('Nueva Idea publicitaria').item.json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Ideas publicitarias",
+              "displayName": "Ideas publicitarias",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente de aprobación Humana",
+                  "value": "Pendiente de aprobación Humana"
+                },
+                {
+                  "name": "Publicado por IA",
+                  "value": "Publicado por IA"
+                },
+                {
+                  "name": "Rechazado / Revisar por Humano",
+                  "value": "Rechazado / Revisar por Humano"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador",
+              "displayName": "Borrador",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Rechazado",
+              "displayName": "Rechazado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Ultima Ejecución",
+              "displayName": "Ultima Ejecución",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ceecc239-6e75-4e33-b0b8-d33709822563",
+      "name": "Emision de borrador",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -2384,
+        16
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wrFTwdWYrzpwMTLL",
+          "name": "Airtable account 5"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C6H0SBASG",
+          "mode": "list",
+          "cachedResultName": "general-equipo-publicidad-catma-cakes"
+        },
+        "message": "=Para la idea publicitaria: \n{{ $json.fields[\"Ideas publicitarias\"] }}\n\nSe generó este borrador:\n{{ $json.fields.Borrador }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Aprobar",
+            "disapproveLabel": "Rechazar"
+          }
+        },
+        "options": {}
+      },
+      "id": "a1aaa0de-d6f5-497b-89f2-49b507d4484c",
+      "name": "Envio de borrador para aprobar",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        -2160,
+        0
+      ],
+      "webhookId": "9229d964-d909-47df-a6a7-b9b02fa6e4fd",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "vw23CZAI5vqS8EPE",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "ea98e95b-1a7c-4796-91aa-c23e4a17f872",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1952,
+        0
+      ],
+      "webhookId": "ac190e54-cd12-4b3e-b443-bbd2aad69eb4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Envio de borrador para aprobar').item.json.data.approved }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "id": "03b16351-e5d4-4d0c-844b-2fea91658607"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "57ce857a-1eb0-4fe8-a43c-4b7bb791e8f6",
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "16d854a2-5fbc-4c19-b4a1-2003eb223776",
+      "name": "¿Aprobado?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appfBFa3aS0xs1VIN",
+          "mode": "list",
+          "cachedResultName": "Entrega Final- JAUREGUI ROMANO, LUCIA",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblFQZOItmxUpbRiF",
+          "mode": "list",
+          "cachedResultName": "Ideas de Publicidad",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN/tblFQZOItmxUpbRiF"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Aprobado": true,
+            "Rechazado": false,
+            "id": "={{ $('Nueva Idea publicitaria').item.json.id }}",
+            "Estado": "Aprobado por Humano"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Ideas publicitarias",
+              "displayName": "Ideas publicitarias",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente de aprobación Humana",
+                  "value": "Pendiente de aprobación Humana"
+                },
+                {
+                  "name": "Publicado por IA",
+                  "value": "Publicado por IA"
+                },
+                {
+                  "name": "Rechazado / Revisar por Humano",
+                  "value": "Rechazado / Revisar por Humano"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador",
+              "displayName": "Borrador",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Rechazado",
+              "displayName": "Rechazado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ultima Ejecución",
+              "displayName": "Ultima Ejecución",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Resumen KPIs",
+              "displayName": "Resumen KPIs",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8ef27f1d-bc8e-44f9-9631-d09c23b843f7",
+      "name": "Aprobado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -1520,
+        -64
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wrFTwdWYrzpwMTLL",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appfBFa3aS0xs1VIN",
+          "mode": "list",
+          "cachedResultName": "Entrega Final- JAUREGUI ROMANO, LUCIA",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblFQZOItmxUpbRiF",
+          "mode": "list",
+          "cachedResultName": "Ideas de Publicidad",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN/tblFQZOItmxUpbRiF"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Nueva Idea publicitaria').item.json.id }}",
+            "Estado": "Publicado por IA"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Ideas publicitarias",
+              "displayName": "Ideas publicitarias",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente de aprobación Humana",
+                  "value": "Pendiente de aprobación Humana"
+                },
+                {
+                  "name": "Publicado por IA",
+                  "value": "Publicado por IA"
+                },
+                {
+                  "name": "Rechazado / Revisar por Humano",
+                  "value": "Rechazado / Revisar por Humano"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador",
+              "displayName": "Borrador",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Rechazado",
+              "displayName": "Rechazado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Ultima Ejecución",
+              "displayName": "Ultima Ejecución",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "fd9a5ef5-bd9d-4fa1-aa0a-db154cd546fd",
+      "name": "Cambio de estado a publicado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -992,
+        -96
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wrFTwdWYrzpwMTLL",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appfBFa3aS0xs1VIN",
+          "mode": "list",
+          "cachedResultName": "Entrega Final- JAUREGUI ROMANO, LUCIA",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblFQZOItmxUpbRiF",
+          "mode": "list",
+          "cachedResultName": "Ideas de Publicidad",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN/tblFQZOItmxUpbRiF"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Aprobado": false,
+            "Rechazado": true,
+            "id": "={{ $('Nueva Idea publicitaria').item.json.id }}",
+            "Estado": "Rechazado / Revisar por Humano"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Ideas publicitarias",
+              "displayName": "Ideas publicitarias",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente de aprobación Humana",
+                  "value": "Pendiente de aprobación Humana"
+                },
+                {
+                  "name": "Publicado por IA",
+                  "value": "Publicado por IA"
+                },
+                {
+                  "name": "Rechazado / Revisar por Humano",
+                  "value": "Rechazado / Revisar por Humano"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador",
+              "displayName": "Borrador",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Rechazado",
+              "displayName": "Rechazado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ultima Ejecución",
+              "displayName": "Ultima Ejecución",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b46029af-cf98-40c7-b2c5-21a70553becd",
+      "name": "Rechazado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -1520,
+        208
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wrFTwdWYrzpwMTLL",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appfBFa3aS0xs1VIN",
+          "mode": "list",
+          "cachedResultName": "Entrega Final- JAUREGUI ROMANO, LUCIA",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblg0AsaycKPrFPAR",
+          "mode": "list",
+          "cachedResultName": "Errores",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN/tblg0AsaycKPrFPAR"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Mensaje de Error": "=Error en Base de Datos",
+            "Error registrado": "={{ $json.error.cause.message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Mensaje de Error",
+              "displayName": "Mensaje de Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Error registrado",
+              "displayName": "Error registrado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Dia y Hora",
+              "displayName": "Dia y Hora",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -2256,
+        176
+      ],
+      "id": "7e5a1597-cb28-4980-b0ad-557d9cc54f4d",
+      "name": "Error Base de Datos",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wrFTwdWYrzpwMTLL",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appfBFa3aS0xs1VIN",
+          "mode": "list",
+          "cachedResultName": "Entrega Final- JAUREGUI ROMANO, LUCIA",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblg0AsaycKPrFPAR",
+          "mode": "list",
+          "cachedResultName": "Errores",
+          "cachedResultUrl": "https://airtable.com/appfBFa3aS0xs1VIN/tblg0AsaycKPrFPAR"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Mensaje de Error": "=Error en Gmail ",
+            "Error registrado": "={{ $json.error }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Mensaje de Error",
+              "displayName": "Mensaje de Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Error registrado",
+              "displayName": "Error registrado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Dia y Hora",
+              "displayName": "Dia y Hora",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -1152,
+        64
+      ],
+      "id": "2b7abfb4-f13a-4369-9550-37f5c3d3b523",
+      "name": "Error Gmail",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wrFTwdWYrzpwMTLL",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "lucia_djr@hotmail.com",
+        "subject": "={{ $json.fields[\"Ideas publicitarias\"] }}",
+        "emailType": "text",
+        "message": "={{ $json.fields.Borrador }}",
+        "options": {}
+      },
+      "id": "382051fd-9ebc-4a35-aef3-076218030f1d",
+      "name": "Envio de publicidad a Suscriptores",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1312,
+        -32
+      ],
+      "webhookId": "47344267-ae79-4d8c-9760-aada4f49a424",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "X5DIzjaYRZFBKYBR",
+          "name": "Gmail account 3"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C77V6NXLG",
+          "mode": "list",
+          "cachedResultName": "revisar-borrador"
+        },
+        "text": "Rechazaron mi borrador, por favor revisar el contenido de la Memoria RAG para perfeccionarme",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        -1312,
+        208
+      ],
+      "id": "ddf84bad-af7d-4983-9ae7-a51fc6b67a8b",
+      "name": "Aviso al equipo para revisar el rechazo",
+      "webhookId": "125ba395-40ad-4598-bf06-44f66e536da0",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "vw23CZAI5vqS8EPE",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C6F8SNBFB",
+          "mode": "list",
+          "cachedResultName": "comunidad-catma-cakes"
+        },
+        "text": "=Se envio este mensaje por mail a los suscriptores: {{ $json.fields.Borrador }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        -1312,
+        -208
+      ],
+      "id": "2d6cd6d7-e2d3-444c-9bd8-b1741d89e402",
+      "name": "Envio del mensaje publicado al equipo",
+      "webhookId": "03af7211-51a9-4a3e-8484-d533fd43cab7",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "vw23CZAI5vqS8EPE",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableOAuth2Api",
+        "baseId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://airtable.com/appfBFa3aS0xs1VIN/tblFQZOItmxUpbRiF/viwOhHPPo4kTHYrph",
+          "__regex": "https://airtable.com/([a-zA-Z0-9]{2,})"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "https://airtable.com/appfBFa3aS0xs1VIN/tblFQZOItmxUpbRiF/viwOhHPPo4kTHYrph",
+          "mode": "url"
+        },
+        "triggerField": "Ideas publicitarias",
+        "additionalFields": {}
+      },
+      "id": "274cc0ea-15fd-40c1-a164-de74418d13a9",
+      "name": "Nueva Idea publicitaria",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2976,
+        16
+      ],
+      "waitBetweenTries": 1000,
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wrFTwdWYrzpwMTLL",
+          "name": "Airtable account 5"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Emision de borrador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emision de borrador": {
+      "main": [
+        [
+          {
+            "node": "Envio de borrador para aprobar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Base de Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio de borrador para aprobar": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "¿Aprobado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Aprobado?": {
+      "main": [
+        [
+          {
+            "node": "Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aprobado": {
+      "main": [
+        [
+          {
+            "node": "Envio del mensaje publicado al equipo",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Envio de publicidad a Suscriptores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Gmail": {
+      "main": [
+        []
+      ]
+    },
+    "Envio de publicidad a Suscriptores": {
+      "main": [
+        [
+          {
+            "node": "Cambio de estado a publicado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rechazado": {
+      "main": [
+        [
+          {
+            "node": "Aviso al equipo para revisar el rechazo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio del mensaje publicado al equipo": {
+      "main": [
+        []
+      ]
+    },
+    "Nueva Idea publicitaria": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Base de Datos": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a5d2a0f9-0946-46d3-8a99-cdbab7295dd8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b4ed98bca6b932a6afde1ddc4a4d91d17693d9864d25cdaa52d95054ef5de456"
+  },
+  "nodeGroups": [],
+  "id": "mzhMcWDjwzH3uKlJ",
+  "tags": []
+}
